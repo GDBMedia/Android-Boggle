@@ -40,10 +40,10 @@
         android:layout_margin="14dp"
         android:layout_height="wrap_content"
         android:hint="Answer"
-        android:gravity="center_horizontal"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:inputType="textCapWords|textPersonName" />
+        android:inputType="textCapWords|textPersonName"
+        android:gravity="top"/>
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
