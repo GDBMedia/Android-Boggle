@@ -2,6 +2,7 @@ package net.gdbmedia.boggle;
 
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.letters) TextView mLetters;
     @Bind(R.id.answer) EditText mAnswer;
     @Bind(R.id.submitButton) Button mSubmit;
+    @Bind(R.id.newGame) Button mNewGame;
+    @Bind(R.id.timer) TextView mTimer;
     private ArrayList mAnswers = new ArrayList();
 
     @Override
@@ -34,10 +37,28 @@ public class MainActivity extends AppCompatActivity {
         Typeface Bangers = Typeface.createFromAsset(getAssets(), "fonts/Bangers.ttf");
 
         mTitle.setTypeface(Bangers);
-        String letters = randLetters();
+        final String letters = randLetters();
         mLetters.setText(letters);
 
-       final char[] lettersArray = letters.toCharArray();
+        new CountDownTimer(30000, 1000) {
+
+            public void onTick(long millisUntilFinished) {
+                mTimer.setText("Seconds Remaining: " + millisUntilFinished / 1000);
+            }
+
+            public void onFinish() {
+                mTimer.setText("Game Over");
+                mNewGame.setVisibility(View.VISIBLE);
+                mAnswer.setVisibility(View.INVISIBLE);
+                mSubmit.setVisibility(View.INVISIBLE);
+                if(mAnswers.size() > 0){
+                    Intent intent = new Intent(MainActivity.this, AnswerList.class);
+                    intent.putExtra("answers", mAnswers);
+                    startActivity(intent);
+                }
+
+            }
+        }.start();
 
         mSubmit.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -46,13 +67,11 @@ public class MainActivity extends AppCompatActivity {
                 char[] answerArray = answer.toUpperCase().toCharArray();
                 if(answerArray.length >=3){
                     for(int i = 0; i<answerArray.length; i++){
-                        if(new String(lettersArray).indexOf(answerArray[i]) != -1){
-                            Toast.makeText(MainActivity.this, "we made it here", Toast.LENGTH_LONG).show();
+                        if(letters.indexOf(answerArray[i]) != -1){
                             if(i == answerArray.length-1){
+                                Toast.makeText(MainActivity.this, "Good!", Toast.LENGTH_LONG).show();
                                 mAnswers.add(answer);
-                                Intent intent = new Intent(MainActivity.this, AnswerList.class);
-                                intent.putExtra("answers", mAnswers);
-                                startActivity(intent);
+                                mAnswer.setText("");
                             }
                         }else{
                             Toast.makeText(MainActivity.this, "Answer contained letters not Provided", Toast.LENGTH_LONG).show();
@@ -77,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         while (vowel1 == vowel2){
             vowel2 = rand.nextInt((7 - 0) + 1);
         }
-        for(int i = 0; i<8; i++){
+        for(int i = 0; i < 8; i++){
 
             if(i == vowel1 || i == vowel2) {
                 int x = rand.nextInt((4 - 0) + 1);
@@ -88,5 +107,18 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return returnValue;
+    }
+
+    public void click(View view){
+        Intent intent = getIntent();
+        overridePendingTransition(0, 0);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        finish();
+        overridePendingTransition(0, 0);
+        startActivity(intent);
+    }
+
+    public void focus(View view){
+        mAnswer.requestFocus();
     }
 }
